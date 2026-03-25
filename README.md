@@ -81,6 +81,17 @@ Each file in `prompts/` is a standalone prompt — copy-paste into any AI conver
 - People who want fully automated solutions (this is a template — you feed data to AI)
 - People who are fine with commercial health apps handling their data
 
+## Privacy
+
+All health data is stored locally in Obsidian — nothing is uploaded automatically. However, when you send data to AI for analysis, the content passes through their servers:
+
+- **Claude Code (API mode)** — Anthropic does not use API inputs for model training ([privacy policy](https://www.anthropic.com/policies/privacy))
+- **ChatGPT** — Turn off "Improve the model for everyone" in Settings → Data Controls
+- **Gemini** — Check your data sharing settings in Google AI Studio
+- **Maximum privacy** — Use a local model (e.g., Ollama, LM Studio) for analysis
+
+> Obsidian is your local vault. AI is your analyst. The vault never leaves your machine — but the analysis step involves cloud APIs unless you use a local model.
+
 ## Contributing
 
 Issues and PRs welcome:
