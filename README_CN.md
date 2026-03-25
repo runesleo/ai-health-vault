@@ -23,10 +23,32 @@
 5. 完成。以后每次体检/看病/买药，重复第 4 步
 ```
 
+## Claude Code 用户快速开始
+
+如果你用 [Claude Code](https://claude.ai/claude-code)，clone 下来直接聊就行：
+
+```bash
+git clone https://github.com/runesleo/ai-health-vault.git
+cd ai-health-vault
+claude
+# "帮我分析这份体检报告"（附上照片）
+```
+
+`.claude/skills/` 目录下有 8 个预置 Skill，自动加载，不用手动复制 Prompt。
+
 ## 仓库结构
 
 ```
 ai-health-vault/
+├── .claude/skills/               # Claude Code Skills（自动加载）
+│   ├── health-report-extract.md  # 体检报告 → 结构化数据
+│   ├── medication-recognize.md   # 药盒照片 → 药物信息
+│   ├── health-trend-analysis.md  # 多次体检趋势分析
+│   ├── medical-visit-prep.md     # 就医前清单生成
+│   ├── apple-watch-analysis.md   # Apple Watch 数据分析
+│   ├── family-friendly-health.md # 转成给父母看的版本
+│   ├── checkup-calendar.md       # 复查日历 + 提醒
+│   └── daily-health-plan.md      # 个性化日常健康方案
 ├── vault/                        # Obsidian Vault 模板（直接用）
 │   ├── 健康管理中心.md             # 入口 Hub + 工作流说明
 │   ├── 家庭成员健康档案.md          # 家庭总览

@@ -23,11 +23,33 @@ Not an app. Not a code project. It's a set of **templates + prompts + setup guid
 5. Done. Repeat step 4 for every checkup, doctor visit, or new medication.
 ```
 
+## Quick Start: Claude Code Users
+
+If you use [Claude Code](https://claude.ai/claude-code), just clone and start talking:
+
+```bash
+git clone https://github.com/runesleo/ai-health-vault.git
+cd ai-health-vault
+claude
+# "Help me analyze this checkup report" (attach photo)
+```
+
+The `.claude/skills/` directory contains 8 pre-built skills that activate automatically — no manual prompt copy-paste needed.
+
 ## Repository Structure
 
 ```
 ai-health-vault/
-├── vault/                         # Obsidian Vault templates (ready to use)
+├── .claude/skills/                 # Claude Code skills (auto-loaded)
+│   ├── health-report-extract.md    # Checkup report → structured data
+│   ├── medication-recognize.md     # Pill box photo → drug info
+│   ├── health-trend-analysis.md    # Multi-checkup trend analysis
+│   ├── medical-visit-prep.md       # Pre-visit checklist generator
+│   ├── apple-watch-analysis.md     # Apple Watch health data analysis
+│   ├── family-friendly-health.md   # Plain language for parents
+│   ├── checkup-calendar.md         # Follow-up calendar + alerts
+│   └── daily-health-plan.md        # Personalized daily health plan
+├── vault/                          # Obsidian Vault templates (ready to use)
 │   ├── 健康管理中心.md              # Hub + workflow instructions
 │   ├── 家庭成员健康档案.md           # Family overview
 │   ├── 就医记录.md                  # Medical visits / surgery / chronic conditions
