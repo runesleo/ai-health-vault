@@ -22,7 +22,16 @@
 4. 生成完整的健康分析报告
 ```
 
-如果你的 AI 处理不了大文件，先让它写个脚本预处理：
+优先做法：先运行仓库内脚本预处理。
+
+```bash
+python scripts/apple_health_preprocess.py --input /path/to/export.zip --output ./apple-health-csv
+```
+
+脚本会按常用数据类型拆分出独立 CSV（如心率、步数、睡眠、运动）。
+你可以把这些 CSV 分批发给 AI 做进一步分析。
+
+如果你当前环境没法运行脚本，再让 AI 现写一个兜底脚本：
 
 ```
 这个 XML 文件太大了，请先帮我写一个 Python 脚本：
