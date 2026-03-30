@@ -61,7 +61,8 @@ ai-health-vault/
 │   │   ├── 运动记录.csv             # Exercise tracking
 │   │   └── 体检指标.csv             # Key checkup metrics over time
 │   └── 知识库/
-│       └── 常见指标参考.md           # Common health metrics reference
+│       ├── 常见指标参考.md           # Common health metrics reference
+│       └── 推荐字段标准.md           # Recommended field naming standard
 ├── prompts/                        # Prompt collection (works with any AI)
 │   ├── 01-体检报告提取.md            # Photo → structured data
 │   ├── 02-药盒识别.md               # Medication photo → drug list
@@ -90,6 +91,8 @@ Each file in `prompts/` is a standalone prompt — copy-paste into any AI conver
 | WeChat Version | Convert analysis to plain language for parents | Any analysis result |
 | Follow-up Calendar | Generate follow-up schedule with overdue alerts | Family archives |
 | Daily Health Plan | Diet + exercise + medication + warning signs | Personal archive |
+
+If you want AI outputs to stay consistent across checkups, medications, medical visits, and Apple Watch imports, see `vault/知识库/推荐字段标准.md` for the recommended field naming standard.
 
 ## Who This Is For
 
