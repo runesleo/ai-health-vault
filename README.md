@@ -1,129 +1,130 @@
-# AI Health Vault
+# AI 健康库（AI Health Vault）
 
-**English** | [中文](README_CN.md)
+[English](README.en.md) | **中文**
 
-Build a private, AI-powered health management system for yourself and your family using Obsidian.
+用 AI + Obsidian 为自己和家人搭建私有化健康管理系统。
 
-Not an app. Not a code project. It's a set of **templates + prompts + setup guides**. Clone it, let your AI (Claude / ChatGPT / Gemini) read it, and it will guide you through building your family's health archive step by step.
+不是 App，不是代码项目——是一套**模板 + Prompt + 搭建指南**。Clone 下来，让你的 AI（Claude / ChatGPT / Gemini）读一遍，它就能指引你一步步搭好自己的家庭健康档案。
 
-## Why
+## 为什么需要这个
 
-- Medical reports scattered across hospitals — no one tracks trends for you
-- Your parents can't remember their own medication, dosages, or follow-up dates
-- Commercial health apps require uploading your family's private health data
-- You just need local templates where the data stays on your machine
+- 体检报告散落在各家医院，没人帮你汇总趋势
+- 老人的病史、用药、复查时间，问他们自己都记不清
+- 商用健康 App（蚂蚁阿福等）要上传你全家的隐私数据
+- 你只需要一套本地运行的模板，数据完全属于你自己
 
-## 30-Minute Setup
+## 30 分钟搭建流程
 
 ```
-1. Fork this repo (or download ZIP)
-2. Open the vault/ folder in Obsidian
-3. Fill in family member names in "健康管理中心.md"
-4. Take a photo of a medical report → send to AI → AI fills in the template
-5. Done. Repeat step 4 for every checkup, doctor visit, or new medication.
+1. Fork 本仓库（或下载 ZIP）
+2. 用 Obsidian 打开 vault/ 文件夹
+3. 把家庭成员名字填入「健康管理中心.md」
+4. 拍体检报告 → 发给 AI → AI 按模板填入档案
+5. 完成。以后每次体检/看病/买药，重复第 4 步
 ```
 
-## Quick Start: Claude Code Users
+## Claude Code 用户快速开始
 
-If you use [Claude Code](https://claude.ai/claude-code), just clone and start talking:
+如果你用 [Claude Code](https://claude.ai/claude-code)，clone 下来直接聊就行：
 
 ```bash
 git clone https://github.com/runesleo/ai-health-vault.git
 cd ai-health-vault
 claude
-# "Help me analyze this checkup report" (attach photo)
+# "帮我分析这份体检报告"（附上照片）
 ```
 
-The `.claude/skills/` directory contains 8 pre-built skills that activate automatically — no manual prompt copy-paste needed.
+`.claude/skills/` 目录下有 8 个预置 Skill，自动加载，不用手动复制 Prompt。
 
-## Repository Structure
+## 仓库结构
 
 ```
 ai-health-vault/
-├── .claude/skills/                 # Claude Code skills (auto-loaded)
-│   ├── health-report-extract.md    # Checkup report → structured data
-│   ├── medication-recognize.md     # Pill box photo → drug info
-│   ├── health-trend-analysis.md    # Multi-checkup trend analysis
-│   ├── medical-visit-prep.md       # Pre-visit checklist generator
-│   ├── apple-watch-analysis.md     # Apple Watch health data analysis
-│   ├── family-friendly-health.md   # Plain language for parents
-│   ├── checkup-calendar.md         # Follow-up calendar + alerts
-│   └── daily-health-plan.md        # Personalized daily health plan
-├── vault/                          # Obsidian Vault templates (ready to use)
-│   ├── 健康管理中心.md              # Hub + workflow instructions
-│   ├── 家庭成员健康档案.md           # Family overview
-│   ├── 就医记录.md                  # Medical visits / surgery / chronic conditions
+├── .claude/skills/               # Claude Code Skills（自动加载）
+│   ├── health-report-extract.md  # 体检报告 → 结构化数据
+│   ├── medication-recognize.md   # 药盒照片 → 药物信息
+│   ├── health-trend-analysis.md  # 多次体检趋势分析
+│   ├── medical-visit-prep.md     # 就医前清单生成
+│   ├── apple-watch-analysis.md   # Apple Watch 数据分析
+│   ├── family-friendly-health.md # 转成给父母看的版本
+│   ├── checkup-calendar.md       # 复查日历 + 提醒
+│   └── daily-health-plan.md      # 个性化日常健康方案
+├── vault/                        # Obsidian Vault 模板（直接用）
+│   ├── 健康管理中心.md             # 入口 Hub + 工作流说明
+│   ├── 家庭成员健康档案.md          # 家庭总览
+│   ├── 就医记录.md                 # 就医/手术/慢性病模板
 │   ├── 成员模板/
-│   │   └── 体检档案-模板.md         # Per-person checkup archive (incl. Apple Watch)
+│   │   └── 体检档案-模板.md        # 单人体检档案（含 Apple Watch 数据表）
 │   ├── tracking/
-│   │   ├── 用药打卡.csv             # Daily medication log
-│   │   ├── 饮食记录.csv             # Diet tracking
-│   │   ├── 运动记录.csv             # Exercise tracking
-│   │   └── 体检指标.csv             # Key checkup metrics over time
+│   │   ├── 用药打卡.csv            # 每日用药记录
+│   │   ├── 饮食记录.csv            # 饮食追踪
+│   │   ├── 运动记录.csv            # 运动追踪
+│   │   └── 体检指标.csv            # 历次体检关键指标
 │   └── 知识库/
-│       ├── 常见指标参考.md           # Common health metrics reference
-│       └── 推荐字段标准.md           # Recommended field naming standard
-├── prompts/                        # Prompt collection (works with any AI)
-│   ├── 01-体检报告提取.md            # Photo → structured data
-│   ├── 02-药盒识别.md               # Medication photo → drug list
-│   ├── 03-趋势分析.md               # Historical comparison + anomaly detection
-│   ├── 04-就医准备.md               # Pre-visit checklist generator
-│   ├── 05-Apple-Watch数据分析.md    # Health data export → analysis
-│   ├── 06-微信版口语化.md            # Convert to plain language for parents
-│   ├── 07-复查日历生成.md            # Follow-up calendar + overdue alerts
-│   └── 08-日常管理方案.md            # Diet / exercise / medication / warning signs
+│       ├── 常见指标参考.md          # AI 生成的指标解读参考
+│       └── 推荐字段标准.md          # 推荐字段命名标准
+├── prompts/                       # Prompt 集（喂给任何 AI 都能用）
+│   ├── 01-体检报告提取.md           # 拍照 → 结构化数据
+│   ├── 02-药盒识别.md              # 拍药盒 → 用药清单
+│   ├── 03-趋势分析.md              # 历史对比 + 异常标注
+│   ├── 04-就医准备.md              # 生成就医前清单
+│   ├── 05-Apple-Watch数据分析.md   # 健康数据导出 → 分析
+│   ├── 06-微信版口语化.md           # 转成给父母看的版本
+│   ├── 07-复查日历生成.md           # 生成复查时间表 + 过期提醒
+│   └── 08-日常管理方案.md           # 饮食/运动/用药/就医信号
 ├── guides/
-│   └── 快速开始.md                  # Detailed setup tutorial
+│   ├── 快速开始.md                 # 详细搭建教程
+│   └── FAQ.md                     # 常见问题
 └── LICENSE
 ```
 
-## Prompts
+## Prompt 集说明
 
-Each file in `prompts/` is a standalone prompt — copy-paste into any AI conversation:
+`prompts/` 里的每个文件都是独立的 Prompt，复制粘贴到任何 AI 对话里就能用：
 
-| Prompt | Purpose | Input |
-|--------|---------|-------|
-| Checkup Report Extraction | Photo/PDF → structured table | Report photo |
-| Medication Recognition | Pill box photo → drug name + dosage + frequency | Medication photo |
-| Trend Analysis | Compare multiple checkups, flag anomalies | Checkup archive |
-| Pre-Visit Prep | Generate questions for your doctor | Department + history |
-| Apple Watch Analysis | Export health data → full report | export.zip |
-| WeChat Version | Convert analysis to plain language for parents | Any analysis result |
-| Follow-up Calendar | Generate follow-up schedule with overdue alerts | Family archives |
-| Daily Health Plan | Diet + exercise + medication + warning signs | Personal archive |
+| Prompt | 用途 | 输入 |
+|--------|------|------|
+| 体检报告提取 | 拍照/PDF → 结构化表格 | 体检报告照片 |
+| 药盒识别 | 拍药盒 → 药名+剂量+频次 | 药盒照片 |
+| 趋势分析 | 对比多次体检，标注异常趋势 | 体检档案.md |
+| 就医准备 | 看病前生成问题清单 | 科室名 + 历史档案 |
+| Apple Watch 数据分析 | 导出健康数据 → 完整分析报告 | export.zip |
+| 微信版口语化 | 把分析结果转成父母能看懂的话 | 任意分析结果 |
+| 复查日历生成 | 生成复查时间表，标注过期/即将到期项 | 全家档案 |
+| 日常管理方案 | 饮食禁忌 + 运动建议 + 用药提醒 + 就医信号 | 个人档案 |
 
-If you want AI outputs to stay consistent across checkups, medications, medical visits, and Apple Watch imports, see `vault/知识库/推荐字段标准.md` for the recommended field naming standard.
+如果你希望 AI 在体检、用药、就医、Apple Watch 数据这几类内容上持续保持字段一致，建议同时参考 `vault/知识库/推荐字段标准.md`。
 
-## Who This Is For
+## 谁适合用
 
-- Tech-savvy people who want to build health archives for their parents
-- Anyone who cares about health data but doesn't want to use third-party apps
-- Apple Watch / smartband owners who want more value from their data
+- 想给父母建健康档案的技术人
+- 关注自己健康数据但不想用第三方 App 的人
+- 有 Apple Watch / 智能手环，想让数据发挥更大价值的人
 
-## Who This Is NOT For
+## 谁不适合
 
-- People who don't use AI tools (requires Claude / ChatGPT / Gemini)
-- People who want fully automated solutions (this is a template — you feed data to AI)
-- People who are fine with commercial health apps handling their data
+- 不用 AI 工具的人（需要 Claude / ChatGPT / Gemini 任一）
+- 想要一键自动化的人（这是模板，需要你主动喂数据给 AI）
+- 对隐私不敏感、商用 App 就够用的人
 
-## Privacy
+## 隐私说明
 
-All health data is stored locally in Obsidian — nothing is uploaded automatically. However, when you send data to AI for analysis, the content passes through their servers:
+所有健康数据存储在本地 Obsidian 中，不会自动上传到任何地方。但当你把数据发给 AI 分析时，内容会经过 AI 服务商的服务器：
 
-- **Claude Code (API mode)** — Anthropic does not use API inputs for model training ([privacy policy](https://www.anthropic.com/policies/privacy))
-- **ChatGPT** — Turn off "Improve the model for everyone" in Settings → Data Controls
-- **Gemini** — Check your data sharing settings in Google AI Studio
-- **Maximum privacy** — Use a local model (e.g., Ollama, LM Studio) for analysis
+- **Claude Code（API 模式）** — Anthropic 不会将 API 输入用于模型训练
+- **ChatGPT** — 建议在 设置 → 数据控制 中关闭"改进模型"
+- **Gemini** — 检查 Google AI Studio 中的数据共享设置
+- **最高隐私** — 使用本地模型（如 Ollama、LM Studio）进行分析
 
-> Obsidian is your local vault. AI is your analyst. The vault never leaves your machine — but the analysis step involves cloud APIs unless you use a local model.
+> Obsidian 是你的本地仓库，AI 是你的分析师。仓库永远不离开你的电脑——但分析这一步涉及云端 API，除非你使用本地模型。
 
-## Contributing
+## 贡献
 
-Issues and PRs welcome:
-- New prompts (e.g., specialized extraction for specific test types)
-- Improve existing template structures
-- Add reference ranges for common health metrics
-- Translations
+欢迎提 Issue 和 PR：
+- 新增 Prompt（比如针对特定检查项目的提取模板）
+- 改进现有模板结构
+- 补充常见指标的参考范围
+- 翻译成其他语言
 
 ## Star History
 
@@ -131,7 +132,7 @@ Issues and PRs welcome:
 
 ## Author
 
-Leo ([@runes_leo](https://x.com/runes_leo)) — AI × Crypto independent builder. Quantitative trading on Polymarket, building data analysis and automation systems with Claude Code. Shipping code, building products, documenting lessons learned. More → [leolabs.me](https://leolabs.me)
+Leo ([@runes_leo](https://x.com/runes_leo))，AI × Crypto 独立构建者。在 Polymarket 做量化交易，用 Claude Code 搭建数据分析和自动化系统。写代码、做产品、记踩坑。更多实战分享 → [leolabs.me](https://leolabs.me)
 
 ## License
 
