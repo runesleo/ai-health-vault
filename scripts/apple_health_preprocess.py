@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
+import contextlib
 import csv
-import shutil
 import sys
 import tempfile
 import zipfile
@@ -39,6 +39,49 @@ WORKOUT_TYPE_MAP = {
     "HKWorkoutActivityTypeHiking": "hiking",
 }
 
+OUTPUT_HEADERS = {
+    "heart_rate": ["source_name", "start_date", "end_date", "value", "unit"],
+    "resting_heart_rate": ["source_name", "start_date", "end_date", "value", "unit"],
+    "walking_heart_rate_average": [
+        "source_name",
+        "start_date",
+        "end_date",
+        "value",
+        "unit",
+    ],
+    "heart_rate_variability_sdnn": [
+        "source_name",
+        "start_date",
+        "end_date",
+        "value",
+        "unit",
+    ],
+    "oxygen_saturation": ["source_name", "start_date", "end_date", "value", "unit"],
+    "vo2max": ["source_name", "start_date", "end_date", "value", "unit"],
+    "step_count": ["source_name", "start_date", "end_date", "value", "unit"],
+    "sleep_analysis": [
+        "source_name",
+        "start_date",
+        "end_date",
+        "sleep_stage",
+        "duration_minutes",
+    ],
+    "workouts": [
+        "source_name",
+        "start_date",
+        "end_date",
+        "workout_type",
+        "duration_minutes",
+        "total_energy_kcal",
+        "total_distance_km",
+    ],
+}
+
+QUANTITY_TYPE_BY_IDENTIFIER = {
+    type_identifier: output_name
+    for output_name, type_identifier in QUANTITY_TYPES.items()
+}
+
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S %z"
 
 
@@ -50,7 +93,9 @@ def parse_args() -> argparse.Namespace:
         "--input", required=True, help="Path to Apple Health export.xml or export.zip"
     )
     parser.add_argument(
-        "--output", required=True, help="Directory for generated CSV files"
+        "--output",
+        required=True,
+        help="New or empty directory for generated CSV files",
     )
     parser.add_argument(
         "--types",
@@ -98,7 +143,13 @@ def resolve_input_xml(
 
 def ensure_output_dir(output_dir: Path) -> None:
     if output_dir.exists():
-        shutil.rmtree(output_dir)
+        if not output_dir.is_dir():
+            raise NotADirectoryError(f"Output path is not a directory: {output_dir}")
+        if any(output_dir.iterdir()):
+            raise FileExistsError(
+                f"Output directory must be empty or not exist: {output_dir}"
+            )
+        return
     output_dir.mkdir(parents=True, exist_ok=True)
 
 
@@ -117,76 +168,109 @@ def duration_minutes(start: str, end: str) -> str:
     return str(int((end_dt - start_dt).total_seconds() / 60))
 
 
-def collect_quantity_rows(root: ET.Element, type_identifier: str) -> list[list[str]]:
-    rows: list[list[str]] = []
-    for record in root.findall("Record"):
-        if safe_attr(record, "type") != type_identifier:
-            continue
-        rows.append(
-            [
-                safe_attr(record, "sourceName"),
-                safe_attr(record, "startDate"),
-                safe_attr(record, "endDate"),
-                safe_attr(record, "value"),
-                safe_attr(record, "unit"),
-            ]
-        )
-    return rows
+def build_quantity_row(record: ET.Element) -> list[str]:
+    return [
+        safe_attr(record, "sourceName"),
+        safe_attr(record, "startDate"),
+        safe_attr(record, "endDate"),
+        safe_attr(record, "value"),
+        safe_attr(record, "unit"),
+    ]
 
 
-def collect_sleep_rows(root: ET.Element) -> list[list[str]]:
-    rows: list[list[str]] = []
-    for record in root.findall("Record"):
-        if safe_attr(record, "type") != "HKCategoryTypeIdentifierSleepAnalysis":
-            continue
-        start = safe_attr(record, "startDate")
-        end = safe_attr(record, "endDate")
-        rows.append(
-            [
-                safe_attr(record, "sourceName"),
-                start,
-                end,
-                SLEEP_STAGE_MAP.get(
-                    safe_attr(record, "value"),
-                    safe_attr(record, "value")
-                    .replace("HKCategoryValueSleepAnalysis", "")
-                    .lower(),
-                ),
-                duration_minutes(start, end),
-            ]
-        )
-    return rows
+def build_sleep_row(record: ET.Element) -> list[str]:
+    start = safe_attr(record, "startDate")
+    end = safe_attr(record, "endDate")
+    raw_value = safe_attr(record, "value")
+    return [
+        safe_attr(record, "sourceName"),
+        start,
+        end,
+        SLEEP_STAGE_MAP.get(
+            raw_value,
+            raw_value.replace("HKCategoryValueSleepAnalysis", "").lower(),
+        ),
+        duration_minutes(start, end),
+    ]
 
 
-def collect_workout_rows(root: ET.Element) -> list[list[str]]:
-    rows: list[list[str]] = []
-    for workout in root.findall("Workout"):
-        rows.append(
-            [
-                safe_attr(workout, "sourceName"),
-                safe_attr(workout, "startDate"),
-                safe_attr(workout, "endDate"),
-                WORKOUT_TYPE_MAP.get(
-                    safe_attr(workout, "workoutActivityType"),
-                    safe_attr(workout, "workoutActivityType")
-                    .replace("HKWorkoutActivityType", "")
-                    .lower(),
-                ),
-                safe_attr(workout, "duration"),
-                safe_attr(workout, "totalEnergyBurned"),
-                safe_attr(workout, "totalDistance"),
-            ]
-        )
-    return rows
+def build_workout_row(workout: ET.Element) -> list[str]:
+    raw_type = safe_attr(workout, "workoutActivityType")
+    return [
+        safe_attr(workout, "sourceName"),
+        safe_attr(workout, "startDate"),
+        safe_attr(workout, "endDate"),
+        WORKOUT_TYPE_MAP.get(
+            raw_type,
+            raw_type.replace("HKWorkoutActivityType", "").lower(),
+        ),
+        safe_attr(workout, "duration"),
+        safe_attr(workout, "totalEnergyBurned"),
+        safe_attr(workout, "totalDistance"),
+    ]
 
 
-def write_csv(path: Path, headers: list[str], rows: list[list[str]]) -> None:
-    if not rows:
-        return
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.writer(fh)
-        writer.writerow(headers)
-        writer.writerows(rows)
+def get_writer(
+    output_name: str,
+    output_dir: Path,
+    stack: contextlib.ExitStack,
+    writers: dict[str, csv.writer],
+) -> csv.writer:
+    writer = writers.get(output_name)
+    if writer is not None:
+        return writer
+
+    file_handle = stack.enter_context(
+        (output_dir / f"{output_name}.csv").open("w", newline="", encoding="utf-8")
+    )
+    writer = csv.writer(file_handle)
+    writer.writerow(OUTPUT_HEADERS[output_name])
+    writers[output_name] = writer
+    return writer
+
+
+def write_requested_csvs(
+    xml_path: Path, output_dir: Path, requested_types: list[str]
+) -> None:
+    requested_set = set(requested_types)
+    writers: dict[str, csv.writer] = {}
+    root: ET.Element | None = None
+    element_stack: list[ET.Element] = []
+
+    with contextlib.ExitStack() as stack:
+        context = ET.iterparse(xml_path, events=("start", "end"))
+        for event, elem in context:
+            if event == "start":
+                element_stack.append(elem)
+                if root is None:
+                    root = elem
+                continue
+
+            is_direct_child = root is not None and len(element_stack) == 2
+            if is_direct_child and elem.tag == "Record":
+                record_type = safe_attr(elem, "type")
+                quantity_output = QUANTITY_TYPE_BY_IDENTIFIER.get(record_type)
+                if quantity_output in requested_set:
+                    get_writer(quantity_output, output_dir, stack, writers).writerow(
+                        build_quantity_row(elem)
+                    )
+                elif (
+                    record_type == "HKCategoryTypeIdentifierSleepAnalysis"
+                    and "sleep_analysis" in requested_set
+                ):
+                    get_writer("sleep_analysis", output_dir, stack, writers).writerow(
+                        build_sleep_row(elem)
+                    )
+            elif is_direct_child and elem.tag == "Workout" and "workouts" in requested_set:
+                get_writer("workouts", output_dir, stack, writers).writerow(
+                    build_workout_row(elem)
+                )
+
+            element_stack.pop()
+            if is_direct_child and root is not None:
+                root.clear()
+            else:
+                elem.clear()
 
 
 def main() -> int:
@@ -199,41 +283,7 @@ def main() -> int:
         requested_types = parse_requested_types(args.types)
         xml_path, temp_dir = resolve_input_xml(input_path)
         ensure_output_dir(output_dir)
-        root = ET.parse(xml_path).getroot()
-
-        for output_name in requested_types:
-            if output_name in QUANTITY_TYPES:
-                write_csv(
-                    output_dir / f"{output_name}.csv",
-                    ["source_name", "start_date", "end_date", "value", "unit"],
-                    collect_quantity_rows(root, QUANTITY_TYPES[output_name]),
-                )
-            elif output_name == "sleep_analysis":
-                write_csv(
-                    output_dir / "sleep_analysis.csv",
-                    [
-                        "source_name",
-                        "start_date",
-                        "end_date",
-                        "sleep_stage",
-                        "duration_minutes",
-                    ],
-                    collect_sleep_rows(root),
-                )
-            elif output_name == "workouts":
-                write_csv(
-                    output_dir / "workouts.csv",
-                    [
-                        "source_name",
-                        "start_date",
-                        "end_date",
-                        "workout_type",
-                        "duration_minutes",
-                        "total_energy_kcal",
-                        "total_distance_km",
-                    ],
-                    collect_workout_rows(root),
-                )
+        write_requested_csvs(xml_path, output_dir, requested_types)
 
         return 0
     except Exception as exc:

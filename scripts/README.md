@@ -38,4 +38,5 @@ python scripts/apple_health_preprocess.py --input /path/to/export.zip --output .
 ### 说明
 
 - 第一版只覆盖常用 Apple Health 数据类型，不是全量导出器
+- `--output` 必须指向一个新目录或空目录，脚本不会删除你现有目录里的内容
 - 如果你当前环境无法运行脚本，再退回到让 AI 临时生成兜底脚本
