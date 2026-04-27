@@ -13,10 +13,10 @@
 ⚠️ **重要**：绝不直接处理原始 XML 文件（通常 >1GB）
 
 当用户提供 export.zip 时：
-1. 首先分析 XML 数据结构
-2. 写 Python 脚本按类型拆分数据
-3. 转换为 CSV 格式便于分析
-4. 按数据类型分批处理
+1. 优先使用仓库内脚本 `scripts/apple_health_preprocess.py`
+2. 将 XML 按类型拆分为 CSV
+3. 再按数据类型分批处理
+4. 如果用户当前环境无法运行脚本，再临时提供 Python 兜底脚本
 
 ### 第二步：数据分类提取
 
@@ -128,12 +128,13 @@
 
 ## 技术处理脚本
 
-当需要处理大文件时，提供 Python 脚本：
+优先脚本：
 
-```python
-# Apple Health XML 数据预处理脚本
-# 功能：解析大型 XML，按类型拆分为 CSV
+```bash
+python scripts/apple_health_preprocess.py --input /path/to/export.zip --output ./apple-health-csv
 ```
+
+如果当前环境不能运行脚本，再提供临时 Python 兜底脚本。
 
 ## 兼容性说明
 
